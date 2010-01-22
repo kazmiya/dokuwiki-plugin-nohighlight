@@ -19,6 +19,12 @@ class action_plugin_nohighlight extends DokuWiki_Action_Plugin {
     var $highlight_orig = array();
 
     /**
+     * Configurations (may be overridden)
+     */
+    var $disable_highlight = 'all';
+    var $remove_url_params = 1;
+
+    /**
      * Registers event handlers
      */
     function register(&$controller) {
@@ -32,8 +38,12 @@ class action_plugin_nohighlight extends DokuWiki_Action_Plugin {
      */
     function disableHighlight(&$event, $param) {
         global $HIGH;
+        global $ACT;
 
-        switch ($this->getConf('disable_highlight')) {
+        if ($ACT !== 'show' && $ACT !== 'search') return;
+        $this->setConfig();
+
+        switch ($this->disable_highlight) {
             case 'none':
                 return;
             case 'all':   // disable all highlighting features
@@ -49,10 +59,35 @@ class action_plugin_nohighlight extends DokuWiki_Action_Plugin {
     }
 
     /**
+     * Sets per-user or site-wide configurations
+     */
+    function setConfig() {
+        @session_start();
+
+        if (isset($_REQUEST['nohighlight'])) {
+            if ($_REQUEST['nohighlight']) {
+                $_SESSION[DOKU_COOKIE]['nohighlight'] = 1;
+            } else {
+                unset($_SESSION[DOKU_COOKIE]['nohighlight']);
+            }
+        }
+
+        if ($_SESSION[DOKU_COOKIE]['nohighlight']) {
+            // set per-user config (disable all features only)
+            $this->disable_highlight = 'all';
+            $this->remove_url_params = 1;
+        } else {
+            // set site-default config
+            $this->disable_highlight = $this->getConf('disable_highlight');
+            $this->remove_url_params = $this->getConf('remove_url_params');
+        }
+    }
+
+    /**
      * Manipulates highlight candidates to remove ?s[]=term from search result URLs
      */
     function removeUrlParams(&$event, $param) {
-        if (!$this->getConf('remove_url_params')) return;
+        if (!$this->remove_url_params) return;
 
         switch ($param['do']) {
             case 'modify':
