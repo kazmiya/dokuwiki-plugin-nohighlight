@@ -28,9 +28,14 @@ class action_plugin_nohighlight extends DokuWiki_Action_Plugin {
      * Registers event handlers
      */
     function register(&$controller) {
-        $controller->register_hook('DOKUWIKI_STARTED', 'AFTER', $this, 'disableHighlight', array());
-        $controller->register_hook('SEARCH_QUERY_FULLPAGE', 'AFTER', $this, 'removeUrlParams', array('do' => 'modify'));
-        $controller->register_hook('FULLTEXT_SNIPPET_CREATE', 'BEFORE', $this, 'removeUrlParams', array('do' => 'restore'));
+        $controller->register_hook('DOKUWIKI_STARTED',
+            'BEFORE', $this, 'disableHighlight', array());
+        $controller->register_hook('DOKUWIKI_STARTED',
+            'AFTER',  $this, 'removeUrlParams',  array('do' => 'get'));
+        $controller->register_hook('SEARCH_QUERY_FULLPAGE',
+            'AFTER',  $this, 'removeUrlParams',  array('do' => 'modify'));
+        $controller->register_hook('FULLTEXT_SNIPPET_CREATE',
+            'BEFORE', $this, 'removeUrlParams',  array('do' => 'restore'));
     }
 
     /**
@@ -53,7 +58,7 @@ class action_plugin_nohighlight extends DokuWiki_Action_Plugin {
                 if (!empty($_REQUEST['s'])) $HIGH = '';
                 break;
             case 'auto':  // disable auto-highlight via search engines
-                $HIGH = $_REQUEST['s'];
+                $HIGH = isset($_REQUEST['s']) ? (string) $_REQUEST['s'] : '';
                 break;
         }
     }
@@ -90,6 +95,9 @@ class action_plugin_nohighlight extends DokuWiki_Action_Plugin {
         if (!$this->remove_url_params) return;
 
         switch ($param['do']) {
+            case 'get':
+                $this->getCandidatesFromReferer();
+                break;
             case 'modify':
                 $this->modifyCandidates($event->data['highlight']);
                 break;
@@ -97,6 +105,31 @@ class action_plugin_nohighlight extends DokuWiki_Action_Plugin {
                 $this->restoreCandidates($event->data['highlight']);
                 break;
         }
+    }
+
+    /**
+     * Gets highlight candidates from HTTP_REFERER info
+     * (A compensation for "remove_url_paarams" option)
+     */
+    function getCandidatesFromReferer() {
+        global $HIGH;
+        global $ACT;
+
+        if ($ACT !== 'show') return;
+        if (!empty($HIGH)) return;
+        if (!isset($_SERVER['HTTP_REFERER'])) return;
+        if (in_array($this->disable_highlight, array('all', 'auto'))) return;
+
+        $referer = (string) $_SERVER['HTTP_REFERER'];
+        if (!preg_match('/^'.preg_quote(DOKU_URL, '/').'.*[?&]do=search/', $referer)) return;
+        if (!preg_match('/[?&]id=([^&]+)/', $referer, $matches)) return;
+
+        // users seem to have jumped from search result link in this wiki
+        require_once(DOKU_INC.'inc/fulltext.php');
+        $parsed_query = ft_queryParser(urldecode($matches[1]));
+
+        // set highlight candidates
+        $HIGH = $parsed_query['highlight'];
     }
 
     /**
