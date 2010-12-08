@@ -2,8 +2,8 @@
 /**
  * Japanese language file for nohighlight plugin
  * 
- * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
- * @author     Kazutaka Miyasaka <kazmiya@gmail.com>
+ * @license GPL 2 (http://www.gnu.org/licenses/gpl.html)
+ * @author  Kazutaka Miyasaka <kazmiya@gmail.com>
  */
 
 $lang['disable_highlight']         = 'Wiki ページ上での検索ワードのハイライト機能を無効化する';

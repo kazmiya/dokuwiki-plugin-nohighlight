@@ -2,8 +2,8 @@
 /**
  * Default configuration for nohighlight plugin
  * 
- * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
- * @author     Kazutaka Miyasaka <kazmiya@affrc.go.jp>
+ * @license GPL 2 (http://www.gnu.org/licenses/gpl.html)
+ * @author  Kazutaka Miyasaka <kazmiya@affrc.go.jp>
  */
 
 $conf['disable_highlight'] = 'all';

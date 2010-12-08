@@ -1,7 +1,7 @@
 base   nohighlight
 author Kazutaka Miyasaka
 email  kazmiya@gmail.com
-date   2010-01-23
+date   2010-12-08
 name   No Highlight Plugin
-desc   Disables search term highlighting features
+desc   Disables search term highlightings
 url    http://www.dokuwiki.org/plugin:nohighlight
