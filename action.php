@@ -170,8 +170,17 @@ class action_plugin_nohighlight extends DokuWiki_Action_Plugin
             // users seem to have jumped from search result link in this wiki
             require_once DOKU_INC . 'inc/fulltext.php';
 
+            $query = urldecode($matches[1]);
+
             // set highlight candidates
-            $parsed_query = ft_queryParser(urldecode($matches[1]));
+            // (ft_queryParser has been modified since DokuWiki Rincewind)
+            if (function_exists('idx_get_indexer')) {
+                $Indexer = idx_get_indexer();
+                $parsed_query = ft_queryParser($Indexer, $query);
+            } else {
+                $parsed_query = ft_queryParser($query);
+            }
+
             $HIGH = $parsed_query['highlight'];
         }
     }
