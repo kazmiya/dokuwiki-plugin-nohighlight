@@ -14,4 +14,4 @@ Compatible with DokuWiki 2009-12-25 "Lemming" or later.
 
 See COPYING for license info.
 
-Copyright (c) 2010 Kazutaka Miyasaka <kazmiya@gmail.com>
+Copyright (c) 2010-2012 Kazutaka Miyasaka <kazmiya@gmail.com>
